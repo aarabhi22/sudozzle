@@ -1,0 +1,117 @@
+//SUDOKU PROBLEM
+#include <stdio.h>
+#define SIZE 9
+//function to print sudoku
+void print_solution(int matrix[SIZE][SIZE])
+{
+    int i,j;
+    for(i=0;i<SIZE;i++)
+    {
+        for(j=0;j<SIZE;j++)
+        {
+            printf("%d\t",matrix[i][j]);
+        }
+        printf("\n\n");
+    }
+}
+
+//function to check whether a cell is filled or not
+//if any cell is not filled,then this function will change the values of row and column accordingly
+int find_unassigned(int *row, int *col,int matrix[SIZE][SIZE])
+{
+    int cell_unassign = 0;
+    int i,j;
+    for(i=0;i<SIZE;i++)
+    {
+        for(j=0;j<SIZE;j++)
+        {
+            //cell is unassigned
+            if(matrix[i][j] == 0)
+            {
+                //changing the values of row and col
+                *row = i;
+                *col = j;
+                cell_unassign = 1;
+                return cell_unassign;
+            }
+        }
+    }
+    return cell_unassign;
+}
+
+//function to check if we can put a number in a paticular cell or not
+int is_safe(int n, int r, int c,int matrix[SIZE][SIZE])
+{
+    int i,j;
+    //checking in row
+    for(i=0;i<SIZE;i++)
+    {
+        //there is a cell with the same number
+        if(matrix[r][i] == n)
+            return 0;
+    }
+    //checking column
+    for(i=0;i<SIZE;i++)
+    {
+        //there is a cell with the same number
+        if(matrix[i][c] == n)
+            return 0;
+    }
+    //checking sub matrix
+    int row_start = (r/3)*3;
+    int col_start = (c/3)*3;
+    for(i=row_start;i<row_start+3;i++)
+    {
+        for(j=col_start;j<col_start+3;j++)
+        {
+            //there is a cell with the same number
+            if(matrix[i][j]==n)
+                return 0;
+        }
+    }
+    return 1;
+}
+
+//function to solve sudoku using backtracking
+int solve_sudoku(int matrix[SIZE][SIZE])
+{
+    int row;
+    int col;
+    //if all cells are assigned then the sudoku is already solved
+    if(find_unassigned(&row, &col,matrix) == 0)
+        return 1;
+    int n,i;
+    for(i=1;i<=SIZE;i++)
+    {
+        //if we can assign i to the cell or not
+        if(is_safe(i, row, col,matrix))
+        {
+            //value stored in the cell
+            matrix[row][col] = i;
+            //backtracking
+            if(solve_sudoku(matrix))
+                return 1;
+            //if we can't proceed with this solution,reassign the cell
+            matrix[row][col]=0;
+        }
+    }
+    return 0;
+}
+
+int main()
+{
+    int matrix[SIZE][SIZE];
+    printf("enter the unsolved sudoku\n");
+    for(int i=0;i<SIZE;i++)
+    {
+        for(int j=0;j<SIZE;j++)
+        {
+            scanf("%d",&matrix[i][j]);
+        }
+    }
+    if (solve_sudoku(matrix))
+        print_solution(matrix);
+    else
+        printf("No solution\n");
+    return 0;
+}
